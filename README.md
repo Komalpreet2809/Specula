@@ -214,10 +214,7 @@ The weighted average determines the final verdict:
 - **50–70%** → Suspicious
 - **> 70%** → Likely AI-Generated
 
-## 📝 License
 
-
----
 
 <div align="center">
 
