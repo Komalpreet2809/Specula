@@ -26,7 +26,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # Install PyTorch CPU directly (more stable for HF builds)
 RUN pip install --no-cache-dir \
-    torch==2.4.0 torchvision==0.19.0 \
+    torch==2.5.1 torchvision==0.20.1 \
     --index-url https://download.pytorch.org/whl/cpu
 
 # Copy and install the rest of the dependencies

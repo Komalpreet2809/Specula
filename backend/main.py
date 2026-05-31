@@ -6,16 +6,6 @@ FastAPI backend serving the forensic analysis pipeline
 and the web frontend.
 """
 
-import sys
-import traceback
-try:
-    import transformers.pipelines
-except Exception as e:
-    print("================ FATAL IMPORT ERROR ================", file=sys.stderr)
-    traceback.print_exc(file=sys.stderr)
-    print("==================================================", file=sys.stderr)
-    sys.exit(1)
-
 import io
 import json
 import numpy as np
