@@ -16,7 +16,7 @@ from fastapi.responses import FileResponse, JSONResponse
 from PIL import Image
 from pathlib import Path
 
-from .pipeline import ForensicPipeline
+from .forensic_pipeline import ForensicPipeline
 
 
 def sanitize_for_json(obj):
