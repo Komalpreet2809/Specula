@@ -40,6 +40,12 @@ const dom = {
     scanImage: $("#scan-image"),
     scanStatusText: $("#scan-status-text"),
     scanProgressBar: $("#scan-progress-bar"),
+    scanSpinner: $(".scan-spinner"),
+    scanProgress: $(".scan-progress"),
+    scanError: $("#scan-error"),
+    scanErrorText: $("#scan-error-text"),
+    scanRetryBtn: $("#scan-retry-btn"),
+    scanBackBtn: $("#scan-back-btn"),
 
     // Verdict
     verdictBanner: $("#verdict-banner"),
@@ -251,6 +257,44 @@ dom.batchNewBtn.addEventListener("click", resetToUpload);
 dom.urlAnalyzeBtn.addEventListener("click", startUrlAnalysis);
 dom.urlInput.addEventListener("keydown", (e) => { if (e.key === "Enter") startUrlAnalysis(); });
 
+// ── Scan error handling ─────────────────────────────────────────
+let lastAnalysisFn = null;
+
+function resetScanUI() {
+    dom.scanError.classList.add("hidden");
+    if (dom.scanSpinner) dom.scanSpinner.classList.remove("hidden");
+    if (dom.scanProgress) dom.scanProgress.classList.remove("hidden");
+    dom.scanStatusText.classList.remove("hidden");
+    dom.scanProgressBar.style.width = "0%";
+    dom.scanProgressBar.style.background = "";
+}
+
+function showScanError(message) {
+    if (dom.scanSpinner) dom.scanSpinner.classList.add("hidden");
+    if (dom.scanProgress) dom.scanProgress.classList.add("hidden");
+    dom.scanStatusText.classList.add("hidden");
+    dom.scanErrorText.textContent = message;
+    dom.scanError.classList.remove("hidden");
+}
+
+// Turn a failed request into a clear, human-readable message.
+async function describeFetchError(error, response) {
+    if (response && !response.ok) {
+        let detail = "";
+        try { detail = (await response.json()).detail || ""; } catch { /* non-JSON error body */ }
+        if (response.status === 502 || response.status === 503) {
+            return "The analysis server is temporarily unavailable — it may be waking up or low on memory. Please try again in a moment.";
+        }
+        if (response.status === 413) return "That image is too large. Please try a smaller file.";
+        return detail || `Analysis failed (HTTP ${response.status}).`;
+    }
+    // Network-level failure: server crashed mid-request, connection reset, or offline.
+    return "Couldn't reach the analysis server. It may have restarted or your connection dropped — please try again.";
+}
+
+dom.scanRetryBtn.addEventListener("click", () => { if (lastAnalysisFn) lastAnalysisFn(); });
+dom.scanBackBtn.addEventListener("click", resetToUpload);
+
 // Tab switching
 dom.tabUpload.addEventListener("click", () => switchUploadMode("upload"));
 dom.tabUrl.addEventListener("click", () => switchUploadMode("url"));
@@ -298,7 +342,9 @@ function showSection(section) {
 // ── Single Analysis ─────────────────────────────────────────────
 async function startSingleAnalysis() {
     if (!selectedFile) return;
+    lastAnalysisFn = startSingleAnalysis;
     showSection("scanning");
+    resetScanUI();
     const scanMessages = [
         "Initializing forensic analysis...",
         "Running Error Level Analysis...",
@@ -325,8 +371,9 @@ async function startSingleAnalysis() {
         formData.append("file", selectedFile);
         const response = await fetch("/api/analyze", { method: "POST", body: formData });
         if (!response.ok) {
-            const err = await response.json();
-            throw new Error(err.detail || "Analysis failed");
+            const e = new Error(await describeFetchError(null, response));
+            e.friendly = true;
+            throw e;
         }
         const data = await response.json();
         clearInterval(progressInterval);
@@ -345,12 +392,8 @@ async function startSingleAnalysis() {
     } catch (error) {
         clearInterval(progressInterval);
         clearInterval(messageInterval);
-        dom.scanStatusText.textContent = `Error: ${error.message}`;
-        dom.scanProgressBar.style.width = "0%";
-        dom.scanProgressBar.style.background = "var(--red)";
-        await sleep(2000);
-        dom.scanProgressBar.style.background = "";
-        resetToUpload();
+        const msg = error.friendly ? error.message : await describeFetchError(error, null);
+        showScanError(msg);
     }
 }
 
@@ -358,6 +401,7 @@ async function startSingleAnalysis() {
 async function startBatchAnalysis() {
     if (selectedFiles.length === 0) return;
     showSection("scanning");
+    resetScanUI();
     dom.scanStatusText.textContent = `Analyzing image 1 of ${selectedFiles.length}...`;
     let progress = 0;
     dom.scanProgressBar.style.width = "0%";
@@ -908,7 +952,9 @@ async function startUrlAnalysis() {
         return;
     }
     dom.urlError.classList.add("hidden");
+    lastAnalysisFn = startUrlAnalysis;
     showSection("scanning");
+    resetScanUI();
     dom.scanImage.src = url;  // Show the image during scanning
     dom.scanStatusText.textContent = "Fetching image from URL...";
 
@@ -941,8 +987,9 @@ async function startUrlAnalysis() {
             body: JSON.stringify({ url }),
         });
         if (!response.ok) {
-            const err = await response.json();
-            throw new Error(err.detail || "Analysis failed");
+            const e = new Error(await describeFetchError(null, response));
+            e.friendly = true;
+            throw e;
         }
         const data = await response.json();
         clearInterval(progressInterval);
@@ -958,12 +1005,8 @@ async function startUrlAnalysis() {
     } catch (error) {
         clearInterval(progressInterval);
         clearInterval(messageInterval);
-        dom.scanStatusText.textContent = `Error: ${error.message}`;
-        dom.scanProgressBar.style.width = "0%";
-        dom.scanProgressBar.style.background = "var(--red)";
-        await sleep(2500);
-        dom.scanProgressBar.style.background = "";
-        resetToUpload();
+        const msg = error.friendly ? error.message : await describeFetchError(error, null);
+        showScanError(msg);
     }
 }
 

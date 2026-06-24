@@ -851,6 +851,31 @@ img {
     color: var(--text-primary);
 }
 
+/* ── Scan error state ──────────────────────────────────────── */
+.scan-error {
+    margin-top: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    text-align: center;
+}
+
+.scan-error-text {
+    color: var(--red);
+    font-weight: 600;
+    font-size: 0.95rem;
+    max-width: 480px;
+    line-height: 1.5;
+}
+
+.scan-error-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
 .btn-action {
     display: inline-flex;
     align-items: center;
