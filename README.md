@@ -12,6 +12,8 @@
 
 [Live Demo](https://specula.komalpreet.me/) · [How It Works](#-how-it-works) · [Quick Start](#-quick-start) · [Features](#-features) · [SRS](SRS.md)
 
+> **Live demo note:** The demo runs on Hugging Face Spaces (free tier) and may sleep after inactivity. The first upload after idle can take 30–60 seconds to wake up and load the model — just hit **Try Again** if it times out.
+
 </div>
 
 ---
