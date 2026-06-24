@@ -1,5 +1,5 @@
 
-# 🔍 Specula — Deepfake Forensics Toolkit
+# Specula — Deepfake Forensics Toolkit
 
 <div align="center">
 
@@ -10,7 +10,7 @@
 
 **AI-powered image forensic analysis that detects deepfakes and explains _exactly why_ an image is fake.**
 
-[Live Demo](https://specula.komalpreet.me/) · [How It Works](#-how-it-works) · [Quick Start](#-quick-start) · [Features](#-features) · [SRS](SRS.md)
+[Live Demo](https://specula.komalpreet.me/) · [How It Works](#how-it-works) · [Quick Start](#quick-start) · [Features](#features) · [SRS](SRS.md)
 
 > **Live demo note:** The demo runs on Hugging Face Spaces (free tier) and may sleep after inactivity. The first upload after idle can take 30–60 seconds to wake up and load the model — just hit **Try Again** if it times out.
 
@@ -20,23 +20,23 @@
 
 ![Specula Landing Page](docs/screenshot-landing.png)
 
-## 🎯 What is Specula?
+## What is Specula?
 
 Specula is a **full-stack deepfake detection toolkit** that combines **5 independent forensic analysis methods** to determine whether an image is AI-generated or manipulated. Unlike black-box detectors, Specula explains its reasoning with **visual heatmaps, spectral analysis, and metadata forensics**.
 
 Built as a modern web app with a FastAPI backend and vanilla JS frontend — no frameworks, no bloat.
 
-## 🔬 How It Works
+## How It Works
 
 Specula runs **5 parallel forensic analyses** on every uploaded image:
 
 | # | Method | What It Detects | Output |
 |---|--------|----------------|--------|
-| 🧠 | **CNN Classification** | AI-generated vs. real images using `Ateeqq/ai-vs-human-image-detector` (SigLIP) | Prediction + Grad-CAM heatmap |
-| 🔴 | **Error Level Analysis (ELA)** | JPEG compression inconsistencies from splicing/editing | Compression difference heatmap |
-| 📊 | **Frequency Analysis** | GAN spectral artifacts in the 2D Fourier domain | FFT spectrum + radial profile chart |
-| 🔲 | **Noise Analysis** | Sensor noise consistency using block-wise wavelet decomposition | Noise variance map |
-| 📄 | **Metadata Analysis** | AI software signatures in EXIF/PNG metadata (Stable Diffusion, DALL-E, etc.) | Flagged findings |
+| 1 | **CNN Classification** | AI-generated vs. real images using `Ateeqq/ai-vs-human-image-detector` (SigLIP) | Prediction + Grad-CAM heatmap |
+| 2 | **Error Level Analysis (ELA)** | JPEG compression inconsistencies from splicing/editing | Compression difference heatmap |
+| 3 | **Frequency Analysis** | GAN spectral artifacts in the 2D Fourier domain | FFT spectrum + radial profile chart |
+| 4 | **Noise Analysis** | Sensor noise consistency using block-wise wavelet decomposition | Noise variance map |
+| 5 | **Metadata Analysis** | AI software signatures in EXIF/PNG metadata (Stable Diffusion, DALL-E, etc.) | Flagged findings |
 
 Results are weighted and combined into a final **verdict score (0–100%)** with a confidence label:
 
@@ -69,7 +69,7 @@ PROBABLY REAL → INCONCLUSIVE → SUSPICIOUS → LIKELY AI-GENERATED
 └─────────────────────────────────────────────────┘
 ```
 
-## ✨ Features
+## Features
 
 ### Core Analysis
 - **5-method forensic pipeline** with weighted verdict scoring
@@ -81,30 +81,30 @@ PROBABLY REAL → INCONCLUSIVE → SUSPICIOUS → LIKELY AI-GENERATED
 - Results displayed in a **comparison grid** with verdict badges
 - Click any card to view detailed analysis
 
-### 📄 PDF Forensic Report
+### PDF Forensic Report
 - Generate a **downloadable PDF report** with all analysis results
 - Includes verdict summary, per-analyzer scores, and embedded visualizations
 - Professional formatting suitable for documentation
 
-### 🔀 Image Comparison
+### Image Comparison
 - **Side-by-side comparison** of two analyzed images
 - Interactive **score comparison bar chart** (Chart.js)
 - Select images from your analysis history
 
-### 🕐 Analysis History
+### Analysis History
 - All analyses **auto-saved to localStorage**
 - Browse past results in a **gallery view** with thumbnails
 - Persists across browser refreshes
 - One-click clear history
 
-### 📱 Fully Responsive
+### Fully Responsive
 - Optimized for **desktop, tablet, and mobile**
 - 5 responsive breakpoints (1200px → 360px)
 - Touch-friendly tap targets on mobile devices
 
 ![Comparison Mode](docs/screenshot-compare.png)
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 - Python 3.10+
@@ -114,7 +114,7 @@ PROBABLY REAL → INCONCLUSIVE → SUSPICIOUS → LIKELY AI-GENERATED
 
 ```bash
 # Clone the repo
-git clone https://github.com/Komalpreetkaur-GH/Specula.git
+git clone https://github.com/Komalpreet2809/Specula.git
 cd Specula
 
 # Install dependencies
@@ -136,7 +136,7 @@ If you have an NVIDIA GPU, install PyTorch with CUDA for 3-5x faster analysis:
 pip install torch torchvision --index-url https://download.pytorch.org/whl/cu121
 ```
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 Specula/
@@ -155,12 +155,14 @@ Specula/
 │   ├── index.html            # Single-page app
 │   ├── styles.css            # Full design system
 │   └── app.js                # All frontend logic
-├── docs/                     # New UI Screenshots
+├── deploy/
+│   └── cloudflare-worker.js  # Reverse proxy for custom domain
+├── docs/                     # Screenshots
 ├── README.md
 └── SRS.md
 ```
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 | Layer | Technology |
 |-------|-----------|
@@ -172,7 +174,7 @@ Specula/
 | **Charts** | Chart.js |
 | **Model** | `Ateeqq/ai-vs-human-image-detector` (SigLIP-based) |
 
-## 🧪 API Reference
+## API Reference
 
 ### `POST /api/analyze`
 Upload a single image for forensic analysis.
@@ -198,7 +200,7 @@ curl -X POST http://localhost:8000/api/report \
   -F "file=@photo.jpg" -o report.pdf
 ```
 
-## 📊 How Scoring Works
+## How Scoring Works
 
 Each analyzer returns a score from 0.0 (definitely real) to 1.0 (definitely fake). These are weighted and combined:
 
@@ -216,10 +218,8 @@ The weighted average determines the final verdict:
 - **50–70%** → Suspicious
 - **> 70%** → Likely AI-Generated
 
-
-
 <div align="center">
 
-Made with 🧠 by [Komalpreetkaur-GH](https://github.com/Komalpreetkaur-GH)
+Made by [Komalpreet2809](https://github.com/Komalpreet2809)
 
 </div>
